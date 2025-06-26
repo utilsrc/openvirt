@@ -1,32 +1,34 @@
+use actix_web::{web, App, HttpServer};
+use dotenv::dotenv;
+use std::thread;
+
+mod routes;
+mod models;
+mod handlers;
+mod middleware;
+mod utils;
 mod http;
 
-use url::Url;
+fn main() -> std::io::Result<()> {
+    dotenv().ok();
 
-use http::{AuthMethod, ClientBuilder, HttpClient};
-use pve::version::VersionClient;
+    // 在新线程中运行actix-web服务
+    thread::spawn(move || {
+        actix_web::rt::System::new()
+            .block_on(async {
+                HttpServer::new(|| {
+                    App::new()
+                        .configure(routes::config)
+                })
+                .bind("127.0.0.1:8081")?
+                .run()
+                .await
+            })
+            .unwrap();
+    });
 
-fn main() {
-    dotenv::dotenv().ok();
-    let url = std::env::var("PROXMOX_URL").unwrap();
-    let realm = std::env::var("PROXMOX_REALM").unwrap();
-    let username = std::env::var("PROXMOX_USERNAME").unwrap();
-    let token_name = std::env::var("PROXMOX_TOKEN_NAME").unwrap();
-    let token_secret = std::env::var("PROXMOX_TOKEN_SECRET").unwrap();
-
-    let auth = AuthMethod::token(format!("{username}@{realm}"), token_name, token_secret);
-
-    let http_client = ClientBuilder::default()
-        .with_base_url(Url::parse(&url).unwrap())
-        .with_insecure_tls(true)
-        .with_auth_method(auth)
-        .build()
-        .unwrap();
-
-    // Directly call version API with full path
-    let version: serde_json::Value = http_client.get("api2/json/version", &()).unwrap();
-    println!("PVE version info: {:#?}", version);
-
-    // Get VersionClient using sdk
-    let version  = VersionClient::new(http_client);
-    println!("VersionClient info: {:#?}", version);
+    // 主线程保持运行
+    loop {
+        thread::park();
+    }
 }
