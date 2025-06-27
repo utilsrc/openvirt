@@ -1,11 +1,11 @@
 use actix_web::{HttpResponse, Responder, web};
 use bcrypt::verify;
 use chrono::{Duration, Utc};
-use serde_json::Value;
-use url::Url;
+use serde_json::{Value, json};
+use reqwest::Client as ReqwestClient;
+use reqwest::header::AUTHORIZATION;
 use crate::models::LoginRequest;
 use crate::utils::create_jwt;
-use crate::http::{AuthMethod, ClientBuilder, HttpClient};
 
 pub async fn health_check() -> impl Responder {
     HttpResponse::Ok().json("OK")
@@ -34,15 +34,79 @@ pub async fn get_version() -> impl Responder {
     let token_name = std::env::var("PROXMOX_TOKEN_NAME").unwrap();
     let token_secret = std::env::var("PROXMOX_TOKEN_SECRET").unwrap();
 
-    let auth = AuthMethod::token(format!("{username}@{realm}"), token_name, token_secret);
+    let api_url = format!("{}/api2/json/version", url.trim_end_matches('/').trim_end_matches("/api2/json"));
+    let auth_header = format!(
+        "PVEAPIToken={}!{}={}",
+        format!("{username}@{realm}"), token_name, token_secret
+    );
 
-    let http_client = ClientBuilder::default()
-        .with_base_url(Url::parse(&url).unwrap())
-        .with_insecure_tls(true)
-        .with_auth_method(auth)
+    println!("Making request to: {}", api_url);
+    println!("Using auth header: {}", auth_header);
+
+    let client = ReqwestClient::builder()
+        .danger_accept_invalid_certs(true)
         .build()
         .unwrap();
 
-    let version: Value = http_client.get("api2/json/version", &()).unwrap();
-    HttpResponse::Ok().json(version)
+    match client.get(&api_url)
+        .header(AUTHORIZATION, auth_header)
+        .send()
+        .await
+    {
+        Ok(resp) => {
+            if resp.status().is_success() {
+                match resp.json::<Value>().await {
+                    Ok(version) => HttpResponse::Ok().json(version),
+                    Err(e) => HttpResponse::InternalServerError().json(json!({"error": e.to_string()}))
+                }
+            } else {
+                HttpResponse::InternalServerError().json(json!({"error": resp.status().to_string()}))
+            }
+        },
+        Err(e) => HttpResponse::InternalServerError().json(json!({"error": e.to_string()}))
+    }
+}
+
+pub async fn get_client_version() -> impl Responder {
+    dotenv::dotenv().ok();
+    let url = std::env::var("PROXMOX_URL").unwrap();
+    let realm = std::env::var("PROXMOX_REALM").unwrap();
+    let username = std::env::var("PROXMOX_USERNAME").unwrap();
+    let token_name = std::env::var("PROXMOX_TOKEN_NAME").unwrap();
+    let token_secret = std::env::var("PROXMOX_TOKEN_SECRET").unwrap();
+
+    let api_url = format!("{}/api2/json/version", url.trim_end_matches('/').trim_end_matches("/api2/json"));
+    let auth_header = format!(
+        "PVEAPIToken={}!{}={}",
+        format!("{username}@{realm}"), token_name, token_secret
+    );
+
+    println!("Making request to: {}", api_url);
+    println!("Using auth header: {}", auth_header);
+
+    let client = ReqwestClient::builder()
+        .danger_accept_invalid_certs(true)
+        .build()
+        .unwrap();
+
+    match client.get(&api_url)
+        .header(AUTHORIZATION, auth_header)
+        .send()
+        .await
+    {
+        Ok(resp) => {
+            if resp.status().is_success() {
+                match resp.json::<Value>().await {
+                    Ok(version) => {
+                        println!("PVE version info: {:#?}", version);
+                        HttpResponse::Ok().json(version)
+                    },
+                    Err(e) => HttpResponse::InternalServerError().json(json!({"error": e.to_string()}))
+                }
+            } else {
+                HttpResponse::InternalServerError().json(json!({"error": resp.status().to_string()}))
+            }
+        },
+        Err(e) => HttpResponse::InternalServerError().json(json!({"error": e.to_string()}))
+    }
 }
