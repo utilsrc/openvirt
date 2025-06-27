@@ -25,7 +25,7 @@ OpenVirt is an open-source self-service virtual machine management platform buil
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/openvirt.git
+git clone https://github.com/utilsrc/openvirt.git
 cd openvirt
 ```
 
