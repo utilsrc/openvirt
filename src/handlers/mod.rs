@@ -67,7 +67,7 @@ pub async fn get_version() -> impl Responder {
     }
 }
 
-pub async fn get_client_version() -> impl Responder {
+pub async fn get_nodes() -> impl Responder {
     dotenv::dotenv().ok();
     let url = std::env::var("PROXMOX_URL").unwrap();
     let realm = std::env::var("PROXMOX_REALM").unwrap();
@@ -75,7 +75,7 @@ pub async fn get_client_version() -> impl Responder {
     let token_name = std::env::var("PROXMOX_TOKEN_NAME").unwrap();
     let token_secret = std::env::var("PROXMOX_TOKEN_SECRET").unwrap();
 
-    let api_url = format!("{}/api2/json/version", url.trim_end_matches('/').trim_end_matches("/api2/json"));
+    let api_url = format!("{}/api2/json/nodes", url.trim_end_matches('/').trim_end_matches("/api2/json"));
     let auth_header = format!(
         "PVEAPIToken={}!{}={}",
         format!("{username}@{realm}"), token_name, token_secret
@@ -97,9 +97,9 @@ pub async fn get_client_version() -> impl Responder {
         Ok(resp) => {
             if resp.status().is_success() {
                 match resp.json::<Value>().await {
-                    Ok(version) => {
-                        println!("PVE version info: {:#?}", version);
-                        HttpResponse::Ok().json(version)
+                    Ok(nodes) => {
+                        println!("PVE nodes info: {:#?}", nodes);
+                        HttpResponse::Ok().json(nodes)
                     },
                     Err(e) => HttpResponse::InternalServerError().json(json!({"error": e.to_string()}))
                 }

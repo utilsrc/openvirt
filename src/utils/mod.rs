@@ -1,3 +1,3 @@
 pub mod jwt;
 
-pub use jwt::{Claims, create_jwt, validate_jwt};
+pub use jwt::{create_jwt, validate_jwt};
