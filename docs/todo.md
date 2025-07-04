@@ -1,6 +1,6 @@
 # Rust 后端 API 模块设计
 
-## 🏗️ 技术栈建议
+## 技术栈建议
 - **Web框架**: Actix-web (高性能、生态丰富、文档完善)
 - **数据库**: SQLx (异步、类型安全)
 - **认证**: JWT + Argon2 (密码哈希)
@@ -10,7 +10,7 @@
 - **任务调度**: Actix-cron (可选)
 - **中间件**: Actix-web-middleware (CORS、限流等)
 
-## 📁 项目结构
+## 项目结构
 ```
 src/
 ├── main.rs                 # 程序入口
@@ -49,266 +49,145 @@ src/
     └── api_error.rs
 ```
 
----
+## 模块与接口设计
 
-## 🔐 1. 认证授权模块 (Auth)
+设计一个轻量但功能完善的 Rust 后端 API 方案，适合单人维护的小型系统。
 
-### 接口列表
-- **POST** `/api/auth/register` - 用户注册
-- **POST** `/api/auth/login` - 用户登录
-- **POST** `/api/auth/logout` - 用户登出
-- **POST** `/api/auth/refresh` - 刷新Token
-- **POST** `/api/auth/forgot-password` - 忘记密码
-- **POST** `/api/auth/reset-password` - 重置密码
-- **POST** `/api/auth/verify-email` - 验证邮箱
-- **POST** `/api/auth/resend-verification` - 重发验证邮件
-- **GET** `/api/auth/me` - 获取当前用户信息
+### 1. 认证授权模块 (Auth)
 
-### 核心功能
-- JWT Token 生成和验证
-- 密码安全哈希 (Argon2)
-- 邮箱验证流程
-- 登录频率限制
-- 会话管理
+#### 用户接口
+- `POST /auth/register` - 用户注册（邮箱/手机验证）
+- `POST /auth/login` - 用户登录（JWT 返回）
+- `POST /auth/logout` - 用户登出
+- `POST /auth/refresh` - 刷新令牌
+- `POST /auth/verify` - 验证验证码（邮箱/手机）
+- `POST /auth/reset-password` - 重置密码
 
----
+#### 管理员接口
+- `POST /auth/admin/login` - 管理员登录
+- `GET /auth/admin/users` - 查看用户列表
 
-## 👤 2. 用户管理模块 (Users)
+### 2. 用户模块 (User)
 
-### 用户接口
-- **GET** `/api/users/profile` - 获取用户资料
-- **PUT** `/api/users/profile` - 更新用户资料
-- **POST** `/api/users/change-password` - 修改密码
-- **GET** `/api/users/balance` - 获取账户余额
-- **GET** `/api/users/transactions` - 获取余额变动记录
-- **POST** `/api/users/upload-avatar` - 上传头像
+#### 用户接口
+- `GET /user/profile` - 获取个人信息
+- `PUT /user/profile` - 更新个人信息
+- `PUT /user/password` - 修改密码
+- `GET /user/balance` - 获取余额
+- `POST /user/balance/recharge` - 余额充值
 
-### 管理员接口
-- **GET** `/api/admin/users` - 用户列表（分页、搜索）
-- **GET** `/api/admin/users/{id}` - 获取用户详情
-- **PUT** `/api/admin/users/{id}` - 更新用户信息
-- **PUT** `/api/admin/users/{id}/status` - 修改用户状态
-- **POST** `/api/admin/users/{id}/adjust-balance` - 调整用户余额
-- **GET** `/api/admin/users/{id}/audit-logs` - 用户操作日志
+#### 管理员接口
+- `PUT /admin/users/{id}/balance` - 调整用户余额
+- `PUT /admin/users/{id}/status` - 修改用户状态
 
----
+### 3. 虚拟机管理模块 (VM)
 
-## 🖥️ 3. 虚拟机管理模块 (VMs)
+#### 用户接口
+- `GET /vm/instances` - 获取我的虚拟机列表
+- `POST /vm/instances` - 创建新虚拟机
+- `GET /vm/instances/{id}` - 获取虚拟机详情
+- `POST /vm/instances/{id}/start` - 启动虚拟机
+- `POST /vm/instances/{id}/stop` - 停止虚拟机
+- `POST /vm/instances/{id}/restart` - 重启虚拟机
+- `DELETE /vm/instances/{id}` - 删除虚拟机
+- `GET /vm/instances/{id}/stats` - 获取虚拟机监控数据
+- `GET /vm/plans` - 获取可用套餐列表
 
-### 用户接口
-- **GET** `/api/vms` - 获取我的虚拟机列表
-- **POST** `/api/vms` - 创建虚拟机
-- **GET** `/api/vms/{id}` - 获取虚拟机详情
-- **PUT** `/api/vms/{id}` - 更新虚拟机配置
-- **DELETE** `/api/vms/{id}` - 删除虚拟机
-- **POST** `/api/vms/{id}/start` - 启动虚拟机
-- **POST** `/api/vms/{id}/stop` - 关闭虚拟机
-- **POST** `/api/vms/{id}/restart` - 重启虚拟机
-- **POST** `/api/vms/{id}/reset-password` - 重置root密码
-- **GET** `/api/vms/{id}/console` - 获取控制台链接
-- **GET** `/api/vms/{id}/monitoring` - 获取监控数据
+#### 管理员接口
+- `GET /admin/vm/instances` - 获取所有虚拟机
+- `POST /admin/vm/instances/{id}/migrate` - 迁移虚拟机
+- `POST /admin/vm/templates` - 添加操作系统模板
 
-### 管理员接口
-- **GET** `/api/admin/vms` - 所有虚拟机列表
-- **GET** `/api/admin/vms/{id}` - 虚拟机详情
-- **PUT** `/api/admin/vms/{id}/status` - 强制修改状态
-- **POST** `/api/admin/vms/{id}/migrate` - 迁移虚拟机
-- **GET** `/api/admin/vms/statistics` - 虚拟机统计信息
+### 4. 支付模块 (Payment)
 
----
+#### 用户接口
+- `POST /payment/recharge` - 创建充值订单
+- `GET /payment/recharge/{id}` - 获取充值订单状态
+- `GET /payment/history` - 获取支付记录
 
-## 💳 4. 计费支付模块 (Billing)
+#### 管理员接口
+- `GET /admin/payment/transactions` - 获取所有交易记录
+- `POST /admin/payment/refund` - 执行退款
 
-### 用户接口
-- **POST** `/api/billing/recharge` - 创建充值订单
-- **GET** `/api/billing/invoices` - 获取账单列表
-- **GET** `/api/billing/invoices/{id}` - 获取账单详情
-- **POST** `/api/billing/invoices/{id}/pay` - 支付账单
-- **GET** `/api/billing/payments` - 支付记录
-- **GET** `/api/billing/usage` - 资源使用统计
+### 5. 工单模块 (Ticket)
 
-### Stripe 回调接口
-- **POST** `/api/billing/stripe/webhook` - Stripe 支付回调
+#### 用户接口
+- `GET /tickets` - 获取我的工单列表
+- `POST /tickets` - 创建新工单
+- `GET /tickets/{id}` - 获取工单详情
+- `POST /tickets/{id}/messages` - 添加工单回复
 
-### 管理员接口
-- **GET** `/api/admin/billing/invoices` - 所有账单
-- **POST** `/api/admin/billing/invoices/{id}/cancel` - 取消账单
-- **GET** `/api/admin/billing/payments` - 所有支付记录
-- **POST** `/api/admin/billing/refund` - 退款处理
-- **GET** `/api/admin/billing/statistics` - 财务统计
+#### 管理员接口
+- `GET /admin/tickets` - 获取所有工单
+- `PUT /admin/tickets/{id}/status` - 更新工单状态
 
----
+### 6. 统计报表模块 (Report) - 仅管理员
 
-## 📦 5. 产品套餐模块 (Plans)
+- `GET /admin/report/daily-income` - 每日收入统计
+- `GET /admin/report/user-growth` - 用户增长统计
+- `GET /admin/report/resource-usage` - 资源使用统计
+- `GET /admin/report/node-status` - 节点状态统计
 
-### 用户接口
-- **GET** `/api/plans` - 获取可用套餐列表
-- **GET** `/api/plans/{id}` - 获取套餐详情
+### 7. 系统管理模块 (System) - 仅管理员
 
-### 管理员接口
-- **GET** `/api/admin/plans` - 所有套餐列表
-- **POST** `/api/admin/plans` - 创建套餐
-- **PUT** `/api/admin/plans/{id}` - 更新套餐
-- **DELETE** `/api/admin/plans/{id}` - 删除套餐
-- **PUT** `/api/admin/plans/{id}/status` - 修改套餐状态
+- `GET /admin/system/config` - 获取系统配置
+- `PUT /admin/system/config` - 更新系统配置
+- `GET /admin/system/logs` - 查看系统日志
 
----
+## 优先级规划
 
-## 🗝️ 6. SSH密钥管理模块 (SSH Keys)
+### 开发优先级 (Todo List)
 
-### 用户接口
-- **GET** `/api/ssh-keys` - 获取SSH密钥列表
-- **POST** `/api/ssh-keys` - 添加SSH密钥
-- **GET** `/api/ssh-keys/{id}` - 获取SSH密钥详情
-- **PUT** `/api/ssh-keys/{id}` - 更新SSH密钥
-- **DELETE** `/api/ssh-keys/{id}` - 删除SSH密钥
+#### 第一阶段: 核心功能 (1-2周)
+1. [ ] 项目初始化 + 基础配置
+2. [ ] 用户认证模块 (注册/登录/JWT)
+3. [ ] 用户管理基础API
+4. [ ] PVE API 封装层
+5. [ ] 虚拟机生命周期管理 (创建/启动/停止/删除)
+6. [ ] 基础支付接口 (充值/扣费)
 
----
+#### 第二阶段: 必要功能 (1周)
+1. [ ] 套餐管理
+2. [ ] 余额系统
+3. [ ] 工单系统基础
+4. [ ] 管理员用户管理
+5. [ ] 基础监控数据收集
 
-## 🔧 7. 系统管理模块 (System)
+#### 第三阶段: 增强功能 (1周)
+1. [ ] 统计报表功能
+2. [ ] 系统配置管理
+3. [ ] 操作日志记录
+4. [ ] 自动化任务 (到期检测等)
 
-### 节点管理接口
-- **GET** `/api/admin/nodes` - PVE节点列表
-- **POST** `/api/admin/nodes` - 添加PVE节点
-- **GET** `/api/admin/nodes/{id}` - 节点详情
-- **PUT** `/api/admin/nodes/{id}` - 更新节点配置
-- **DELETE** `/api/admin/nodes/{id}` - 删除节点
-- **GET** `/api/admin/nodes/{id}/resources` - 节点资源使用情况
+#### 第四阶段: 优化与安全 (持续)
+1. [ ] 输入验证增强
+2. [ ] 安全审计
+3. [ ] 性能优化
+4. [ ] 文档完善
 
-### 系统配置接口
-- **GET** `/api/admin/configs` - 系统配置列表
-- **PUT** `/api/admin/configs/{key}` - 更新配置项
-- **GET** `/api/admin/system/info` - 系统信息
-- **GET** `/api/admin/system/logs` - 系统日志
+### 维护建议
 
----
+1. **监控**: 实现简单的健康检查接口 `GET /health`
+2. **备份**: 设置每日数据库自动备份
+3. **日志**: 确保关键操作都有日志记录
+4. **文档**: 使用 Swagger UI 或 Redoc 维护API文档
+5. **部署**: 使用 systemd 管理服务进程
 
-## 🎫 8. 工单支持模块 (Support)
+### 轻量化实现技巧
 
-### 用户接口
-- **GET** `/api/support/tickets` - 我的工单列表
-- **POST** `/api/support/tickets` - 创建工单
-- **GET** `/api/support/tickets/{id}` - 工单详情
-- **POST** `/api/support/tickets/{id}/messages` - 发送消息
-- **PUT** `/api/support/tickets/{id}/close` - 关闭工单
+1. 合并相似功能接口 (如验证码发送)
+2. 简化错误处理，使用统一的错误响应格式
+3. 避免过度抽象，保持代码直接可读
+4. 使用简单的内存缓存而不是Redis
+5. 对于小型系统，可以暂时省略消息队列
 
-### 管理员接口
-- **GET** `/api/admin/support/tickets` - 所有工单
-- **PUT** `/api/admin/support/tickets/{id}/assign` - 分配工单
-- **PUT** `/api/admin/support/tickets/{id}/status` - 修改工单状态
-- **POST** `/api/admin/support/tickets/{id}/messages` - 回复工单
+### 安全注意事项
 
----
+1. 所有用户输入必须验证
+2. 敏感操作需要二次确认
+3. 密码必须加盐哈希存储
+4. JWT 设置合理过期时间
+5. 管理员接口需要严格权限控制
+6. 定期更新依赖库
 
-## 🔔 9. 通知模块 (Notifications)
-
-### 用户接口
-- **GET** `/api/notifications` - 获取通知列表
-- **PUT** `/api/notifications/{id}/read` - 标记已读
-- **PUT** `/api/notifications/read-all` - 全部标记已读
-- **DELETE** `/api/notifications/{id}` - 删除通知
-
-### 管理员接口
-- **POST** `/api/admin/notifications/broadcast` - 广播通知
-- **GET** `/api/admin/notifications/statistics` - 通知统计
-
----
-
-## 💾 10. 备份管理模块 (Backups)
-
-### 用户接口
-- **GET** `/api/backups` - 获取备份列表
-- **POST** `/api/backups` - 创建备份
-- **GET** `/api/backups/{id}` - 备份详情
-- **POST** `/api/backups/{id}/restore` - 恢复备份
-- **DELETE** `/api/backups/{id}` - 删除备份
-
-### 管理员接口
-- **GET** `/api/admin/backups` - 所有备份列表
-- **POST** `/api/admin/backups/cleanup` - 清理过期备份
-
----
-
-## 🌐 11. PVE集成模块 (PVE Integration)
-
-### 内部接口（不直接暴露）
-- `sync_vm_status()` - 同步虚拟机状态
-- `create_vm()` - 在PVE上创建虚拟机
-- `control_vm()` - 控制虚拟机（启动/停止/重启）
-- `get_vm_monitoring()` - 获取虚拟机监控数据
-- `create_backup()` - 创建备份
-- `get_node_resources()` - 获取节点资源
-
----
-
-## 📊 12. 统计报表模块 (Analytics)
-
-### 管理员接口
-- **GET** `/api/admin/analytics/dashboard` - 仪表板数据
-- **GET** `/api/admin/analytics/users` - 用户统计
-- **GET** `/api/admin/analytics/revenue` - 收入统计
-- **GET** `/api/admin/analytics/resources` - 资源使用统计
-- **GET** `/api/admin/analytics/performance` - 性能统计
-
----
-
-## 🔒 权限设计
-
-### 角色定义
-- **user**: 普通用户，只能管理自己的资源
-- **admin**: 管理员，可以管理所有资源
-- **support**: 客服，可以查看工单和用户信息
-
-### 权限中间件
-```rust
-// 示例权限检查 (Actix-web 风格)
-pub async fn require_auth() -> Result<HttpResponse, ApiError>
-pub async fn require_admin() -> Result<HttpResponse, ApiError>
-pub async fn require_resource_owner(resource_id: Uuid) -> Result<HttpResponse, ApiError>
-
-// Actix-web 中间件示例
-use actix_web::{dev::ServiceRequest, Error, HttpMessage};
-use actix_web_httpauth::extractors::bearer::BearerAuth;
-
-pub async fn jwt_middleware(
-    req: ServiceRequest,
-    credentials: BearerAuth,
-) -> Result<ServiceRequest, Error> {
-    // JWT 验证逻辑
-}
-```
-
----
-
-## 🚀 实现建议
-
-### 1. 核心优先级
-1. **认证授权** - 系统基础
-2. **用户管理** - 用户体验
-3. **虚拟机管理** - 核心功能
-4. **计费支付** - 商业模式
-5. **PVE集成** - 底层对接
-
-### 2. 轻量化策略
-- 使用 Actix-web 框架，性能优异且文档完善
-- 数据库操作使用 SQLx，避免重型ORM
-- 最小化依赖，只引入必要的crate
-- 利用 Actix-web 的中间件系统简化开发
-
-### 3. Actix-web 特有优势
-- **高性能**：基于 Actor 模型，并发性能优异
-- **中间件丰富**：认证、CORS、限流等中间件齐全
-- **文档完善**：学习资料丰富，社区活跃
-- **生态成熟**：与各种数据库、缓存集成良好
-
-### 3. 可维护性
-- 清晰的模块划分
-- 统一的错误处理
-- 完善的日志记录
-- 简单的配置管理
-
-### 4. 扩展性
-- 预留接口扩展点
-- 模块化设计便于功能增减
-- 支持多节点扩展
-
+这个设计保持了轻量化的同时覆盖了核心业务需求，适合单人开发和维护。您可以根据实际需求进一步调整接口细节。
