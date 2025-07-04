@@ -57,8 +57,6 @@ JWT_SECRET=your-jwt-secret
 The API will be available at `http://localhost:8081/api/`
 
 Basic endpoints:
-- `GET /api/version` - Get Proxmox version info
-- `POST /api/login` - Authenticate and get JWT token
 - `GET /api/health` - Health check endpoint
 
 ## 🤝 Contributing
@@ -67,4 +65,4 @@ Contributions are welcome! Please open an issue or submit a pull request.
 
 ## 📜 License
 
-MIT © [Your Name]
+MIT © [phyuany@foxmail.com]
