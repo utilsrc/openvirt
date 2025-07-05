@@ -7,8 +7,17 @@ use crate::middleware;
 pub fn config(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/api")
-            .route("/health", web::get().to(handlers::health_check))
-            .route("/login", web::post().to(handlers::login))
+            .route("/health", web::post().to(handlers::health_check))
+            .route("/pve_version", web::post().to(handlers::pve_version))
+            .service(
+                web::scope("/auth")
+                    .route("/register", web::post().to(handlers::auth::register))
+                    .route("/login", web::post().to(handlers::auth::login))
+                    .route("/logout", web::post().to(handlers::auth::logout))
+                    .route("/refresh", web::post().to(handlers::auth::refresh))
+                    .route("/verify", web::post().to(handlers::auth::verify))
+                    .route("/reset-password", web::post().to(handlers::auth::reset_password))
+            )
             .route("/version", web::get().to(handlers::get_version))
             .route("/nodes", web::get().to(handlers::get_nodes))
             .service(

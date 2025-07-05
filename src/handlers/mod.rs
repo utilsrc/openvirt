@@ -7,6 +7,8 @@ use reqwest::header::AUTHORIZATION;
 use crate::models::LoginRequest;
 use crate::utils::create_jwt;
 
+pub mod auth;
+
 struct ProxmoxClient {
     client: ReqwestClient,
     base_url: String,
@@ -43,7 +45,7 @@ impl ProxmoxClient {
     async fn make_request(&self, endpoint: &str) -> Result<Value, String> {
         let api_url = format!("{}/api2/json/{}", self.base_url, endpoint.trim_start_matches('/'));
 
-        match self.client.get(&api_url)
+        match self.client.post(&api_url)
             .header(AUTHORIZATION, &self.auth_header)
             .send()
             .await
@@ -94,6 +96,14 @@ pub async fn get_nodes() -> impl Responder {
             println!("PVE nodes info: {:#?}", nodes);
             HttpResponse::Ok().json(nodes)
         },
+        Err(e) => HttpResponse::InternalServerError().json(json!({"error": e}))
+    }
+}
+
+pub async fn pve_version() -> impl Responder {
+    let client = ProxmoxClient::new();
+    match client.make_request("version").await {
+        Ok(version) => HttpResponse::Ok().json(version),
         Err(e) => HttpResponse::InternalServerError().json(json!({"error": e}))
     }
 }
