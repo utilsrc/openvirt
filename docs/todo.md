@@ -12,41 +12,101 @@
 
 ## 项目结构
 ```
-src/
-├── main.rs                 # 程序入口
-├── config/                 # 配置模块
-│   ├── mod.rs
-│   └── database.rs
-├── middleware/             # 中间件
-│   ├── mod.rs
-│   ├── auth.rs
-│   └── rate_limit.rs
-├── models/                 # 数据模型
-│   ├── mod.rs
-│   ├── user.rs
-│   ├── vm.rs
-│   └── billing.rs
-├── handlers/               # 请求处理器
-│   ├── mod.rs
-│   ├── auth.rs
-│   ├── user.rs
-│   ├── vm.rs
-│   └── billing.rs
-├── services/               # 业务逻辑
-│   ├── mod.rs
-│   ├── user_service.rs
-│   ├── vm_service.rs
-│   └── billing_service.rs
-├── database/               # 数据库操作
-│   ├── mod.rs
-│   └── connection.rs
-├── utils/                  # 工具函数
-│   ├── mod.rs
-│   ├── crypto.rs
-│   └── email.rs
-└── errors/                 # 错误处理
-    ├── mod.rs
-    └── api_error.rs
+├── src/
+│   ├── main.rs                          # 应用入口
+│   ├── config.rs                        # 配置管理
+│   ├── lib.rs                           # 库入口
+│   ├── app.rs                           # 应用状态和配置
+│   │
+│   ├── models/                          # 数据模型
+│   │   ├── mod.rs
+│   │   ├── user.rs                      # 用户模型
+│   │   ├── vm_instance.rs               # 虚拟机实例
+│   │   ├── payment.rs                   # 支付相关
+│   │   ├── ticket.rs                    # 工单模型
+│   │   ├── pve_node.rs                  # PVE节点
+│   │   └── system_config.rs             # 系统配置
+│   │
+│   ├── handlers/                        # 路由处理器 (Actix-web handlers)
+│   │   ├── mod.rs
+│   │   ├── auth.rs                      # 认证处理
+│   │   ├── user.rs                      # 用户管理
+│   │   ├── vm.rs                        # 虚拟机管理
+│   │   ├── payment.rs                   # 支付处理
+│   │   ├── ticket.rs                    # 工单处理
+│   │   ├── admin.rs                     # 管理员功能
+│   │   └── report.rs                    # 统计报表
+│   │
+│   ├── routes/                          # 路由配置
+│   │   ├── mod.rs
+│   │   ├── auth.rs                      # 认证路由
+│   │   ├── user.rs                      # 用户路由
+│   │   ├── vm.rs                        # 虚拟机路由
+│   │   ├── payment.rs                   # 支付路由
+│   │   ├── ticket.rs                    # 工单路由
+│   │   └── admin.rs                     # 管理员路由
+│   │
+│   ├── services/                        # 业务逻辑层
+│   │   ├── mod.rs
+│   │   ├── auth_service.rs              # 认证服务
+│   │   ├── user_service.rs              # 用户服务
+│   │   ├── vm_service.rs                # 虚拟机服务
+│   │   ├── pve_service.rs               # PVE API服务
+│   │   ├── payment_service.rs           # 支付服务
+│   │   ├── ticket_service.rs            # 工单服务
+│   │   ├── email_service.rs             # 邮件服务
+│   │   └── report_service.rs            # 报表服务
+│   │
+│   ├── middleware/                      # Actix-web中间件
+│   │   ├── mod.rs
+│   │   ├── auth.rs                      # JWT验证中间件
+│   │   ├── admin.rs                     # 管理员权限中间件
+│   │   ├── cors.rs                      # CORS处理
+│   │   ├── rate_limit.rs                # 限流中间件
+│   │   └── logging.rs                   # 日志记录中间件
+│   │
+│   ├── utils/                           # 工具函数
+│   │   ├── mod.rs
+│   │   ├── crypto.rs                    # 加密工具
+│   │   ├── email.rs                     # 邮件工具
+│   │   ├── jwt.rs                       # JWT工具
+│   │   ├── validation.rs                # 验证工具
+│   │   └── error.rs                     # 错误处理
+│   │
+│   ├── database/                        # 数据库相关
+│   │   ├── mod.rs
+│   │   ├── connection.rs                # 数据库连接
+│   │   └── migrations.rs                # 迁移管理
+│   │
+│   └── types/                           # 类型定义
+│       ├── mod.rs
+│       ├── requests.rs                  # 请求类型
+│       ├── responses.rs                 # 响应类型
+│       └── enums.rs                     # 枚举类型
+│
+├── migrations/                          # 数据库迁移文件
+│   ├── 001_initial_schema.sql
+│   ├── 002_add_tickets.sql
+│   └── ...
+│
+├── tests/                               # 测试文件
+│   ├── integration/
+│   │   ├── auth_tests.rs
+│   │   ├── vm_tests.rs
+│   │   └── payment_tests.rs
+│   └── unit/
+│       ├── services/
+│       └── utils/
+│
+├── docs/                                # 文档
+│   ├── api.md                          # API文档
+│   ├── deployment.md                   # 部署文档
+│   └── development.md                  # 开发文档
+│
+├── Cargo.toml                          # 依赖配置
+├── .env.example                        # 环境变量示例
+├── docker-compose.yml                  # Docker编排
+└── Dockerfile                          # Docker镜像
 ```
 
 ## 模块与接口设计

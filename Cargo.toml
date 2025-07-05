@@ -4,16 +4,58 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-reqwest = { version = "0.12.4", features = ["json", "blocking"]}
+# Web框架
+actix-web = "4.4"
+actix-cors = "0.6"
+actix-files = "0.6"
+actix-web-httpauth = "0.8.0"
+
+# 异步运行时
+tokio = { version = "1.0", features = ["full"] }
+
+# 数据库
+sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "postgres", "uuid", "chrono", "json"] }
+
+# 认证和加密
+jsonwebtoken = "8.3.0"
+argon2 = "0.5"
+
+# 序列化
 serde = { version = "1.0.204", features = ["derive"] }
 serde_json = "1.0.120"
-thiserror = "1.0.59"
-url = "2.5.0"
-dotenv = "0.15.0"
-actix-web = "4.0.1"
-actix-rt = "2.0.0"
-actix-web-httpauth = "0.8.0"
-jsonwebtoken = "8.3.0"
-chrono = { version = "0.4.19", features = ["serde"] }
+
+# HTTP客户端
+reqwest = { version = "0.12.4", features = ["json", "blocking"]}
+
+# 支付集成
+# stripe-rust = "0.26"
+
+# 邮件服务
+lettre = "0.11"
+
+# 配置管理
+config = "0.13"
+
+# 日志
+log = "0.4"
+env_logger = "0.10"
+
+# 任务调度
+
+
+# 验证
+validator = { version = "0.16", features = ["derive"] }
+
+# 工具库
 bcrypt = "0.15.0"
-tokio = { version = "1.0", features = ["full"] }
+uuid = { version = "1.0", features = ["v4", "serde"] }
+chrono = { version = "0.4.19", features = ["serde"] }
+anyhow = "1.0"
+thiserror = "1.0.59"
+futures = "0.3"
+
+# 环境变量
+dotenv = "0.15.0"
+
+# 限流
+# actix-web-rate-limiter = "0.2"
