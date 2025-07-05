@@ -18,6 +18,7 @@ pub async fn create_pool() -> Result<DbPool, sqlx::Error> {
 
 pub async fn migrate(pool: &DbPool) -> Result<(), MigrateError> {
     sqlx::migrate!("./migrations")
+        .set_ignore_missing(true)
         .run(pool)
         .await
 }

@@ -40,7 +40,7 @@ pub struct UserSession {
     pub expires_at: DateTime<Utc>,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, sqlx::FromRow)]
 pub struct EmailVerification {
     pub id: Uuid,
     pub email: String,
@@ -48,4 +48,11 @@ pub struct EmailVerification {
     pub purpose: String,
     pub expires_at: DateTime<Utc>,
     pub used: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ResetPasswordRequest {
+    pub email: String,
+    pub code: String,
+    pub new_password: String,
 }
