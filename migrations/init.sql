@@ -43,7 +43,7 @@ CREATE TABLE user_sessions (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- 3. 短信验证码表（替换原邮箱验证码）
+-- 3. 邮件验证码表
 CREATE TABLE email_verifications (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     email VARCHAR(255) NOT NULL,
