@@ -111,7 +111,7 @@
 
 ## 三、详细的开发优先级规划
 
-### 第一阶段：基础架构 (1-2周)
+### 第一阶段：基础架构
 **优先级：P0**
 - 项目初始化和环境搭建
 - 数据库设计和迁移
@@ -125,7 +125,7 @@ POST /health                  # 健康检测
 POST /pve_version             # PVE调用示例
 ```
 
-### 第二阶段：核心认证系统 (1周)
+### 第二阶段：核心认证系统
 **优先级：P0**
 ```
 POST /auth/register           # 用户注册
@@ -136,7 +136,7 @@ POST /auth/verify             # 验证验证码
 POST /auth/reset-password     # 重置密码
 ```
 
-### 第三阶段：用户基础功能 (1周)
+### 第三阶段：用户基础功能
 **优先级：P0**
 ```
 GET  /user/profile           # 获取个人信息
@@ -145,7 +145,7 @@ GET  /user/balance           # 获取余额
 POST /user/balance/recharge  # 余额充值
 ```
 
-### 第四阶段：虚拟机核心功能 (2-3周)
+### 第四阶段：虚拟机核心功能
 **优先级：P0**
 ```
 GET  /vm/plans               # 获取可用套餐
@@ -158,7 +158,7 @@ POST /vm/instances/{id}/restart  # 重启虚拟机
 DELETE /vm/instances/{id}        # 删除虚拟机
 ```
 
-### 第五阶段：支付系统 (1-2周)
+### 第五阶段：支付系统
 **优先级：P1**
 ```
 POST /payment/recharge           # 创建充值订单
@@ -166,7 +166,7 @@ GET  /payment/recharge/{id}      # 获取充值订单状态
 GET  /payment/history            # 获取支付记录
 ```
 
-### 第六阶段：工单系统 (1周)
+### 第六阶段：工单系统
 **优先级：P1**
 ```
 GET  /tickets                    # 获取工单列表
@@ -175,7 +175,7 @@ GET  /tickets/{id}               # 获取工单详情
 POST /tickets/{id}/messages      # 添加工单回复
 ```
 
-### 第七阶段：监控与高级功能 (1-2周)
+### 第七阶段：监控与高级功能
 **优先级：P2**
 ```
 GET  /vm/instances/{id}/stats    # 获取监控数据
@@ -183,7 +183,7 @@ POST /vm/instances/{id}/migrate  # 迁移虚拟机
 POST /vm/templates               # 添加系统模板
 ```
 
-### 第八阶段：管理员功能 (2-3周)
+### 第八阶段：管理员功能
 **优先级：P2**
 ```
 # 管理员认证
@@ -206,7 +206,7 @@ GET  /admin/tickets              # 获取所有工单
 PUT  /admin/tickets/{id}/status  # 更新工单状态
 ```
 
-### 第九阶段：报表系统 (1-2周)
+### 第九阶段：报表系统
 **优先级：P3**
 ```
 GET  /admin/report/daily-income    # 每日收入统计
@@ -215,7 +215,7 @@ GET  /admin/report/resource-usage  # 资源使用统计
 GET  /admin/report/node-status     # 节点状态统计
 ```
 
-### 第十阶段：系统管理 (1周)
+### 第十阶段：系统管理
 **优先级：P3**
 ```
 GET  /admin/system/config        # 获取系统配置
